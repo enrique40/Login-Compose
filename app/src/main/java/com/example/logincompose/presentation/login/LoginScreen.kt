@@ -37,13 +37,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.logincompose.R
+import com.example.logincompose.presentation.components.EventDialog
 import com.example.logincompose.presentation.components.RoundedButton
 import com.example.logincompose.presentation.components.TranspatentTextField
 
 
-@Preview(showBackground = true)
+
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    state:  LoginState,
+    onLogin: (String, String) -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onDismisDialog: () -> Unit
+) {
 
     val emailValue = rememberSaveable{ mutableStateOf("") }
     val passwordValue = rememberSaveable{ mutableStateOf("") }
@@ -56,9 +62,12 @@ fun LoginScreen() {
             .background(MaterialTheme.colors.background)
     ){
         Image(
-            painter = painterResource(id = R.drawable.logo),
+            modifier = Modifier.width(400.dp).height(270.dp),
+            painter = painterResource(id = R.drawable.ic_beard_1781443),
             contentDescription = "Login Image",
+            alignment = Alignment.Center,
             contentScale = ContentScale.Inside
+
         )
 
         Box(
@@ -72,7 +81,7 @@ fun LoginScreen() {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp)
+                        .height(380.dp)
                         .constrainAs(surface) {
                             bottom.linkTo(parent.bottom)
                         },
@@ -129,7 +138,7 @@ fun LoginScreen() {
                                     onDone = {
                                         focusManager.clearFocus()
 
-                                        //TODO("LOGIN")
+                                       onLogin(emailValue.value, passwordValue.value)
                                     }
                                 ),
                                 imeAction = ImeAction.Done,
@@ -171,9 +180,9 @@ fun LoginScreen() {
                         ) {
                             RoundedButton(
                                 text = "Login",
-                                displayProgressBar = false,
+                                displayProgressBar = state.displayProgressBar,
                                 onClick = {
-                                    // TODO("LOGIN")
+                                    onLogin(emailValue.value, passwordValue.value)
                                 }
                             )
 
@@ -191,7 +200,7 @@ fun LoginScreen() {
                                     }
                                 }
                             ){
-                                // TODO("NAVIGATE TO REGISTER SCREEN")
+                                onNavigateToRegister()
                             }
                         }
                     }
@@ -205,7 +214,9 @@ fun LoginScreen() {
                             end.linkTo(surface.end, margin = 36.dp)
                         },
                     backgroundColor = MaterialTheme.colors.primary,
-                    onClick = {}
+                    onClick = {
+                        onNavigateToRegister()
+                    }
                 ) {
                     Icon(
                         modifier = Modifier.size(42.dp),
@@ -215,6 +226,13 @@ fun LoginScreen() {
                     )
                 }
             }
+        }
+
+        if (state.errorMessage != null){
+            EventDialog(
+                errorMessage = state.errorMessage,
+                onDismiss = onDismisDialog
+            )
         }
     }
 }
